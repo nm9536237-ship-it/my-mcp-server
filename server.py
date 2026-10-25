@@ -1,14 +1,13 @@
 import os
-from mcp.server.fastmcp import FastMCP
+from fastmcp import FastMCP
 
-mcp = FastMCP("Naresh-Simple-Server")
+mcp = FastMCP("MyRenderServer")
 
 @mcp.tool()
-def get_story_prompt(topic: str) -> str:
-    """कहानी और वीडियो के लिए बेहतरीन सिनेमैटिक प्रॉम्प्ट देता है।"""
-    return f"Cinematic 3D animation style shot of {topic}, vibrant colors, smooth camera movement, highly detailed."
+def hello_world(message: str = "Hello") -> str:
+    """Test tool for MCP server"""
+    return f"Server is running! Message: {message}"
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 8000))
+    port = int(os.environ.get("PORT", 10000))
     mcp.run(transport="sse", host="0.0.0.0", port=port)
-
