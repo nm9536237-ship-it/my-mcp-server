@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Local MCP Controller</string>
+    <string name="accessibility_description">Expose screen details and user-requested gestures to an MCP client on this device.</string>
+</resources>

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "android-local-controller": {
+      "url": "http://127.0.0.1:8765/mcp",
+      "headers": {
+        "Authorization": "Bearer PASTE_APP_TOKEN_HERE"
+      }
+    }
+  }
+}
