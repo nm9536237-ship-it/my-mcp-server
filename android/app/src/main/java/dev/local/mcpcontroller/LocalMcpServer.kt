@@ -12,21 +12,20 @@ import io.ktor.server.routing.post
 import io.ktor.server.routing.routing
 import org.json.JSONArray
 import org.json.JSONObject
-import java.security.SecureRandom
-import android.util.Base64
 
 object LocalMcpServer {
     private var engine: ApplicationEngine? = null
-    private var token: String? = null
 
     @Synchronized
     fun start(context: Context) {
         if (engine != null) return
-        token = accessToken(context)
         engine = embeddedServer(CIO, host = "127.0.0.1", port = 8765) {
             routing {
                 post("/mcp") {
-                    if (call.request.headers["Authorization"] != "Bearer $token") {
+                    val token = call.request.headers["Authorization"]
+                        ?.takeIf { it.startsWith("Bearer ") }
+                        ?.removePrefix("Bearer ")
+                    if (token.isNullOrBlank() || !ClientAuthorizations.isAuthorized(context, token)) {
                         call.respondText("Unauthorized", status = io.ktor.http.HttpStatusCode.Unauthorized)
                         return@post
                     }
@@ -50,22 +49,6 @@ object LocalMcpServer {
     fun stop() {
         engine?.stop(100, 500)
         engine = null
-    }
-
-    @Synchronized
-    fun accessToken(context: Context): String {
-        token?.let { return it }
-        val preferences = context.applicationContext.getSharedPreferences("mcp_host", Context.MODE_PRIVATE)
-        val stored = preferences.getString("access_token", null)
-        if (stored != null) {
-            token = stored
-            return stored
-        }
-        val random = ByteArray(32).also(SecureRandom()::nextBytes)
-        val generated = Base64.encodeToString(random, Base64.URL_SAFE or Base64.NO_WRAP or Base64.NO_PADDING)
-        preferences.edit().putString("access_token", generated).apply()
-        token = generated
-        return generated
     }
 
     private suspend fun handleRequest(request: JSONObject): String? {
